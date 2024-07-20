@@ -8,26 +8,38 @@ To install the required packages, run the following command:
 poetry install
 ```
 
-# Train:
+## Llama Version
 
-unikg
+### Train
 
-CUDA_VISIBLE_DEVICES=0 python unllama_train_vaner.py unidev_kgmix2 128 mt vaner
+To train the model, run the following command:
 
-singlekg
+```bash
+poetry run python ./llama/unllama_train_vaner.py task llora_path llama_version
+```
 
-CUDA_VISIBLE_DEVICES=0 python unllama_train_vaner.py ncbi 128 mt vaner
+### Evaluate
 
+To evaluate the model, run the following command:
 
+```bash
+poetry run python ./llama/unllama_evaluate_vaner.py task max_length kgtype align_mode llama_version
+```
 
+## Mistral Version
 
-# Eva:
+### Train
 
-unikg
+To train the model, run the following command:
 
-CUDA_VISIBLE_DEVICES=0 python unllama_eval_vaner.py ncbi vaner_unidev_kgmix2/checkpoint-number
+```bash
+poetry run python ./mistral/unmistral_train_vaner.py task lora_path
+```
 
-singlekg
+### Evaluate
 
-CUDA_VISIBLE_DEVICES=0 python unllama_eval_vaner.py ncbi vaner_ncbi/checkpoint-number
+To evaluate the model, run the following command:
 
+```bash
+poetry run python ./mistral/unmistral_evaluate_vaner.py task max_length kgtype align_mode
+```

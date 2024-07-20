@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import json
 import numpy as np
@@ -10,7 +8,7 @@ from transformers import TrainingArguments, Trainer
 from peft import get_peft_model, LoraConfig, TaskType
 import ipdb
 
-from .modeling_llama import UnmaskingLlamaForTokenClassification
+from .modeling_mistral import UnmaskingMistralForTokenClassification
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 from utils_vaner import *
@@ -19,14 +17,12 @@ def vis(ds, idx):
     print(' '.join(ds['train'][idx]['tokens']))
     print(ds['train'][idx]['ner_tags'])
 
-
 def find(ds):
     for idx, ele in enumerate(ds['train']):
         if 'linnaeus' in ele['tokens'][0]:
             if 1 in ele['ner_tags']:
                 print(idx)
                 ipdb.set_trace()
-
 
 def load_unidev_kgmix2(kg_type):
     ret = {}
@@ -64,12 +60,11 @@ def load_unidev_kgmix2(kg_type):
                             data.extend(items)
         else:
             continue
+
         ret[split_name] = Dataset.from_list(data)
-        # print(cnt)
         print(len(data))
 
     for split_name in ['test']:
-        cnt = 0
         data = []
         if kg_type == 'mt':
             for cohort in ["ncbi"]:
@@ -104,14 +99,8 @@ def load_unidev_kgmix2(kg_type):
             continue
 
         ret[split_name] = Dataset.from_list(data)
-        # print(cnt)
-        print(len(data))
-    # ipdb.set_trace()
 
     return DatasetDict(ret)
-
-
-
 
 
 def load_BC2GM(kg_type):
@@ -300,14 +289,14 @@ def load_ncbi(kg_type):
 
 
 
-task, max_length, kgtype, align_mode, llama_version = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5])
+task, max_length, kgtype, align_mode = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
 print(f'handling task {task}')
 
 epochs = 20
 batch_size = 4
 learning_rate = 1e-4
 lora_r = 12
-model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
+model_id = './Llama-2-7b-hf'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 if task == 'ncbi':
@@ -342,7 +331,7 @@ else:
     raise NotImplementedError
 id2label = {v: k for k, v in label2id.items()}
 label_list = list(label2id.keys()) # ds["train"].features[f"ner_tags"].feature.names
-model = UnmaskingLlamaForTokenClassification.from_pretrained(
+model = UnmaskingMistralForTokenClassification.from_pretrained(
     model_id, num_labels=len(label2id), id2label=id2label, label2id=label2id
 ).bfloat16()
 peft_config = LoraConfig(task_type=TaskType.TOKEN_CLS, inference_mode=False, r=lora_r, lora_alpha=32, lora_dropout=0.1)
