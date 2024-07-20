@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import ipdb
+
 random.seed(10)
 
 def iobidx(num):

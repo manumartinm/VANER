@@ -3,19 +3,17 @@
 import sys
 import json
 import numpy as np
-import evaluate
-from datasets import load_dataset, Dataset, DatasetDict
+from datasets import Dataset, DatasetDict
 from transformers import AutoTokenizer
 from transformers import DataCollatorForTokenClassification
 from transformers import TrainingArguments, Trainer
 from peft import get_peft_model, LoraConfig, TaskType
 import ipdb
 
-from modeling_llama import UnmaskingLlamaForTokenClassification
+from .modeling_llama import UnmaskingLlamaForTokenClassification
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 from utils_vaner import *
-###
 
 def vis(ds, idx):
     print(' '.join(ds['train'][idx]['tokens']))

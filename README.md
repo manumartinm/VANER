@@ -1,6 +1,12 @@
 # VANER: Biomedical Named Entity Recognition by LLM
 
+## Introduction
 
+To install the required packages, run the following command:
+
+```bash
+poetry install
+```
 
 # Train:
 

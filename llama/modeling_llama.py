@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from copy import deepcopy
-
 from transformers.models.llama.modeling_llama import *
 from transformers.modeling_outputs import TokenClassifierOutput
 

@@ -3,20 +3,19 @@
 import sys
 import json
 import numpy as np
-import evaluate
-from datasets import load_dataset, Dataset, DatasetDict
+from datasets import Dataset, DatasetDict
 from transformers import AutoTokenizer
 from transformers import DataCollatorForTokenClassification
 from transformers import TrainingArguments, Trainer
-from peft import get_peft_model, LoraConfig, TaskType, PeftModel
-import ipdb
+from peft import PeftModel
 
-from modeling_llama import UnmaskingLlamaForTokenClassification
 
-# datacohort="JNLPBA"
-from utils_vaner import *
-###
+from .modeling_llama import UnmaskingLlamaForTokenClassification
+
+from ..utils_vaner import *
+
 from seqeval.metrics import precision_score, recall_score, f1_score
+
 def calculate_accuracy(y_true, y_pred):
     total_correct = 0
     total_samples = 0
