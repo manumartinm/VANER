@@ -14,7 +14,7 @@ from vaner.llama.modeling_llama import UnmaskingLlamaForTokenClassification
 
 from vaner.utils_vaner import *
 
-from vaner.seqeval.metrics import precision_score, recall_score, f1_score
+from vaner.seqeval.metrics.sequence_labeling import f1_score, precision_score, recall_score
 
 def calculate_accuracy(y_true, y_pred):
     total_correct = 0

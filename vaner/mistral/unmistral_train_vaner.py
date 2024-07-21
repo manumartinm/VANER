@@ -9,7 +9,7 @@ from peft import get_peft_model, LoraConfig, TaskType
 import ipdb
 
 from vaner.mistral.modeling_mistral import UnmaskingMistralForTokenClassification
-from vaner.seqeval.metrics import precision_score, recall_score, f1_score
+from vaner.seqeval.metrics.sequence_labeling import f1_score, precision_score, recall_score
 
 from vaner.utils_vaner import *
 
