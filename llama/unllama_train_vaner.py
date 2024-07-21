@@ -13,7 +13,7 @@ import ipdb
 from modeling_llama import UnmaskingLlamaForTokenClassification
 from seqeval.metrics import precision_score, recall_score, f1_score
 
-from utils_vaner import *
+from ..utils_vaner import *
 
 def vis(ds, idx):
     print(' '.join(ds['train'][idx]['tokens']))
