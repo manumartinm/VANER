@@ -8,10 +8,10 @@ from transformers import TrainingArguments, Trainer
 from peft import get_peft_model, LoraConfig, TaskType
 import ipdb
 
-from modeling_mistral import UnmaskingMistralForTokenClassification
-from seqeval.metrics import precision_score, recall_score, f1_score
+from vaner.mistral.modeling_mistral import UnmaskingMistralForTokenClassification
+from vaner.seqeval.metrics import precision_score, recall_score, f1_score
 
-from ..utils_vaner import *
+from vaner.utils_vaner import *
 
 def vis(ds, idx):
     print(' '.join(ds['train'][idx]['tokens']))

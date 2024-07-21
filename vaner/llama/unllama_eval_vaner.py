@@ -10,11 +10,11 @@ from transformers import TrainingArguments, Trainer
 from peft import PeftModel
 
 
-from modeling_mistral import UnmaskingMistralForTokenClassification
+from vaner.llama.modeling_llama import UnmaskingLlamaForTokenClassification
 
-from ..utils_vaner import *
+from vaner.utils_vaner import *
 
-from seqeval.metrics import precision_score, recall_score, f1_score
+from vaner.seqeval.metrics import precision_score, recall_score, f1_score
 
 def calculate_accuracy(y_true, y_pred):
     total_correct = 0
@@ -145,6 +145,8 @@ def load_BC5CDR_chem():
     return DatasetDict(ret)
 
 
+
+
 def load_BC5CDR_disease_test(dname):
     # ret = {}
     data = []
@@ -155,6 +157,8 @@ def load_BC5CDR_disease_test(dname):
 
     return data
 
+
+
 def load_BC5CDR_disease():
     ret = {}
 
@@ -162,6 +166,10 @@ def load_BC5CDR_disease():
     ret['test'] = Dataset.from_list(load_BC5CDR_disease_test('test'))
 
     return DatasetDict(ret)
+
+
+
+
 
 def load_BC4CHEMD_test(dname):
     # ret = {}
@@ -291,17 +299,16 @@ if len(sys.argv) != 3:
     print('usage python %.py task model_size')
     sys.exit()
 
-task, lora_path = sys.argv[1], sys.argv[2].lower()
-
+task, lora_path, llama_version = sys.argv[1], sys.argv[2].lower(), int(sys.argv[3])
 
 print(f'handling task {task}')
 
-epochs = 10
+epochs = 1
 batch_size = 4
 learning_rate = 1e-4
 max_length = 128
 lora_r = 12
-model_id = 'mistralai/Mistral-7B-v0.3'
+model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 # tokenizer.add_special_tokens({'pad_token': '[PAD]'})
@@ -358,7 +365,7 @@ elif task == 'craft_species':
 
 id2label = {v: k for k, v in label2id.items()}
 label_list = list(label2id.keys()) # ds["train"].features[f"ner_tags"].feature.names
-model_base = UnmaskingMistralForTokenClassification.from_pretrained(
+model_base = UnmaskingLlamaForTokenClassification.from_pretrained(
     lora_path, num_labels=len(label2id), id2label=id2label, label2id=label2id
 ).bfloat16()
 

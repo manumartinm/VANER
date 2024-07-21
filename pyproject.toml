@@ -2,7 +2,8 @@
 name = "vaner"
 version = "1.0.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = []
+packages = [{include = "vaner"}]
 readme = "README.md"
 
 [tool.poetry.dependencies]
