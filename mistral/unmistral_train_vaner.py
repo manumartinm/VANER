@@ -296,7 +296,7 @@ epochs = 20
 batch_size = 4
 learning_rate = 1e-4
 lora_r = 12
-model_id = './Llama-2-7b-hf'
+model_id = 'mistralai/Mistral-7B-v0.3'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 if task == 'ncbi':

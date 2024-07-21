@@ -296,12 +296,12 @@ task, lora_path = sys.argv[1], sys.argv[2].lower()
 
 print(f'handling task {task}')
 
-epochs = 1
+epochs = 10
 batch_size = 4
 learning_rate = 1e-4
 max_length = 128
 lora_r = 12
-model_id = './Llama-2-7b-hf'
+model_id = 'mistralai/Mistral-7B-v0.3'
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 # tokenizer.add_special_tokens({'pad_token': '[PAD]'})
