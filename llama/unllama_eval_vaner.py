@@ -10,7 +10,7 @@ from transformers import TrainingArguments, Trainer
 from peft import PeftModel
 
 
-from .modeling_llama import UnmaskingLlamaForTokenClassification
+from modeling_llama import UnmaskingLlamaForTokenClassification
 
 from ..utils_vaner import *
 

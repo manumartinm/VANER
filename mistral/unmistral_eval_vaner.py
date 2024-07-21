@@ -10,7 +10,7 @@ from transformers import TrainingArguments, Trainer
 from peft import PeftModel
 
 
-from .modeling_mistral import UnmaskingMistralForTokenClassification
+from modeling_mistral import UnmaskingMistralForTokenClassification
 
 from ..utils_vaner import *
 

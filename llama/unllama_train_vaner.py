@@ -10,7 +10,7 @@ from transformers import TrainingArguments, Trainer
 from peft import get_peft_model, LoraConfig, TaskType
 import ipdb
 
-from .modeling_llama import UnmaskingLlamaForTokenClassification
+from modeling_llama import UnmaskingLlamaForTokenClassification
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 from utils_vaner import *
