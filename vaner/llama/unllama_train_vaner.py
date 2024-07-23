@@ -4,6 +4,7 @@ import sys
 import json
 import numpy as np
 from datasets import Dataset, DatasetDict
+import torch
 from transformers import AutoTokenizer
 from transformers import DataCollatorForTokenClassification
 from transformers import TrainingArguments, Trainer
@@ -14,6 +15,22 @@ from vaner.llama.modeling_llama import UnmaskingLlamaForTokenClassification
 from vaner.seqeval.metrics.sequence_labeling import f1_score, precision_score, recall_score
 
 from vaner.utils_vaner import *
+
+try:
+    import google.colab
+    COLAB = True
+    print("Note: using Google CoLab")
+except:
+    print("Note: not using Google CoLab")
+    COLAB = False
+
+device = (
+    "mps"
+    if getattr(torch, "has_mps", False)
+    else "cuda"
+    if torch.cuda.is_available()
+    else "cpu"
+)
 
 def vis(ds, idx):
     print(' '.join(ds['train'][idx]['tokens']))
@@ -310,6 +327,9 @@ lora_r = 12
 model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
+if tokenizer.pad_token is None:
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
 if task == 'ncbi':
     ds = load_ncbi(kgtype)
     label2id = {'O': 0, 'B-biomedical': 1, 'I-biomedical': 2}
@@ -345,6 +365,7 @@ label_list = list(label2id.keys()) # ds["train"].features[f"ner_tags"].feature.n
 model = UnmaskingLlamaForTokenClassification.from_pretrained(
     model_id, num_labels=len(label2id), id2label=id2label, label2id=label2id
 ).bfloat16()
+model.resize_token_embeddings(len(tokenizer))
 peft_config = LoraConfig(task_type=TaskType.TOKEN_CLS, inference_mode=False, r=lora_r, lora_alpha=32, lora_dropout=0.1)
 model = get_peft_model(model, peft_config)
 model.print_trainable_parameters()

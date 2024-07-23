@@ -27,9 +27,6 @@ def calculate_accuracy(y_true, y_pred):
     accuracy = total_correct / total_samples if total_samples > 0 else 0.0
     return accuracy
 
-
-
-
 def load_ncbi_test(dname):
     # ret = {}
     data = []
@@ -40,7 +37,6 @@ def load_ncbi_test(dname):
 
     return data
 
-
 def load_ncbi():
     ret = {}
 
@@ -49,10 +45,6 @@ def load_ncbi():
 
 
     return DatasetDict(ret)
-
-
-
-
 
 def load_BC2GM_test(kg_type):
     # ret = {}
@@ -65,7 +57,6 @@ def load_BC2GM_test(kg_type):
 
     return data
 
-
 def load_BC2GM():
     ret = {}
 
@@ -73,12 +64,6 @@ def load_BC2GM():
     ret['test'] = Dataset.from_list(load_BC2GM_test('test'))
 
     return DatasetDict(ret)
-
-
-
-
-
-
 
 def load_JNLPBA_test(dname):
     # ret = {}
@@ -97,11 +82,6 @@ def load_JNLPBA():
     ret['test'] = Dataset.from_list(load_JNLPBA_test('test'))
 
     return DatasetDict(ret)
-
-
-
-
-
 
 def load_linnaeus_test(dname):
     # ret = {}
@@ -122,9 +102,6 @@ def load_linnaeus():
 
     return DatasetDict(ret)
 
-
-
-
 def load_BC5CDR_chem_test(dname):
     # ret = {}
     data = []
@@ -144,9 +121,6 @@ def load_BC5CDR_chem():
 
     return DatasetDict(ret)
 
-
-
-
 def load_BC5CDR_disease_test(dname):
     # ret = {}
     data = []
@@ -157,8 +131,6 @@ def load_BC5CDR_disease_test(dname):
 
     return data
 
-
-
 def load_BC5CDR_disease():
     ret = {}
 
@@ -166,10 +138,6 @@ def load_BC5CDR_disease():
     ret['test'] = Dataset.from_list(load_BC5CDR_disease_test('test'))
 
     return DatasetDict(ret)
-
-
-
-
 
 def load_BC4CHEMD_test(dname):
     # ret = {}
@@ -180,8 +148,6 @@ def load_BC4CHEMD_test(dname):
                 data.extend(items)
 
     return data
-
-
 
 def load_BC4CHEMD():
     ret = {}
@@ -290,11 +256,6 @@ def load_craft_species():
 
     return DatasetDict(ret)
 
-
-
-
-
-
 if len(sys.argv) != 3:
     print('usage python %.py task model_size')
     sys.exit()
@@ -311,6 +272,10 @@ lora_r = 12
 model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+if tokenizer.pad_token is None:
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
 # tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 # seqeval = evaluate.load("seqeval")
 if task == 'ncbi':
@@ -373,8 +338,7 @@ model_base = UnmaskingLlamaForTokenClassification.from_pretrained(
 model = PeftModel.from_pretrained(model_base, lora_path)
 model = model.merge_and_unload()
 
-
-
+model.resize_token_embeddings(len(tokenizer))
 
 def tokenize_and_align_labels_promptmodel(examples):
     tokenized_inputs = tokenizer(examples["tokens"], is_split_into_words=True, padding='longest', max_length=max_length, truncation=True)
