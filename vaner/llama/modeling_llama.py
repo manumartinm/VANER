@@ -498,10 +498,7 @@ class UnmaskingLlamaForTokenClassification(LlamaPreTrainedModel):
             `config.num_labels > 1` a classification loss is computed (Cross-Entropy).
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        if attention_mask is not None:
-            attention_mask = attention_mask.to(dtype=input_ids.dtype)
-
+        
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,

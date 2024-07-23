@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-transformers = "^4.42.4"
+transformers = {extras = ["sentencepiece"], version = "^4.43.1"}
 datasets = "^2.20.0"
 evaluate = "^0.4.2"
 peft = "^0.11.1"

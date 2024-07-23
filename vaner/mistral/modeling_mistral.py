@@ -46,9 +46,11 @@ class UnmaskingMistralModel(MistralPreTrainedModel):
         super().__init__(config)
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
-
+        print(f'padding_idx: {self.padding_idx}')
+        print(f'vocab_size: {self.vocab_size}')
+        print(f'hidden_size: {config.hidden_size}')
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
-        self.layers = nn.ModuleList([MistralDecoderLayer(config) for _ in range(config.num_hidden_layers)])
+        self.layers = nn.ModuleList([MistralDecoderLayer(config, i) for i in range(config.num_hidden_layers)])
         self.norm = MistralRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
         self.gradient_checkpointing = False
@@ -132,12 +134,13 @@ class UnmaskingMistralModel(MistralPreTrainedModel):
             position_ids = position_ids.view(-1, seq_length).long()
 
         if inputs_embeds is None:
+            print(f'ids match: {torch.any(input_ids >= self.config.vocab_size)}')
             inputs_embeds = self.embed_tokens(input_ids)
-        # embed positions
+        # embed 
         if attention_mask is None:
             attention_mask = torch.ones(
                 (batch_size, seq_length_with_past), dtype=torch.bool, device=inputs_embeds.device
-            )
+            ).to(torch.bfloat16)
         # causal mask
         '''
         attention_mask = self._prepare_decoder_attention_mask(
@@ -149,7 +152,7 @@ class UnmaskingMistralModel(MistralPreTrainedModel):
         # remove causal mask
         attention_mask = torch.zeros(
             (batch_size, 1, seq_length, seq_length), device=inputs_embeds.device
-        )
+        ).to(torch.bfloat16)
 
         hidden_states = inputs_embeds
 

@@ -22,10 +22,6 @@ def parse_mt(item, split = 'test', dname = 'ncbi', dtype = 'Disease'):
         ents = []
         from random import sample
 
-        # ents = (sample(ents_levs[0], min(5, len(ents_levs[0])))
-        #         + sample(ents_levs[1] + ents_levs[3], min(5, len(ents_levs[1] + ents_levs[3])))
-        #         + sample(ents_levs[2], min(5, len(ents_levs[2]))))
-
         ents = (sample(ents_levs[0], min(10, len(ents_levs[0])))
                 + sample(ents_levs[1], min(5, len(ents_levs[1]))))
         random.shuffle(ents)

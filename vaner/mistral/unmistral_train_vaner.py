@@ -277,18 +277,6 @@ def load_ncbi(kg_type):
         print(len(data))
     return DatasetDict(ret)
 
-# def load_test():
-#     ret = {}
-#     for split_name in ['train', 'dev', 'test']:
-#         data = []
-#         with open(f'./data/test/test.jsonl', 'r') as reader:
-#             for line in reader:
-#                 data.append(json.loads(line))
-#         ret[split_name] = Dataset.from_list(data)
-#     return DatasetDict(ret)
-
-
-
 task, max_length, kgtype, align_mode = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
 print(f'handling task {task}')
 
@@ -298,6 +286,9 @@ learning_rate = 1e-4
 lora_r = 12
 model_id = 'mistralai/Mistral-7B-v0.3'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+if tokenizer.pad_token is None:
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
 if task == 'ncbi':
     ds = load_ncbi(kgtype)
@@ -334,6 +325,7 @@ label_list = list(label2id.keys()) # ds["train"].features[f"ner_tags"].feature.n
 model = UnmaskingMistralForTokenClassification.from_pretrained(
     model_id, num_labels=len(label2id), id2label=id2label, label2id=label2id
 ).bfloat16()
+model.resize_token_embeddings(len(tokenizer))
 peft_config = LoraConfig(task_type=TaskType.TOKEN_CLS, inference_mode=False, r=lora_r, lora_alpha=32, lora_dropout=0.1)
 model = get_peft_model(model, peft_config)
 model.print_trainable_parameters()
@@ -376,6 +368,12 @@ def tokenize_and_align_labels_try1(examples):
 
 def tokenize_and_align_labels_vaner(examples):
     tokenized_inputs = tokenizer(examples["tokens"], is_split_into_words=True, padding='longest', max_length=max_length, truncation=True)
+    
+    vocab_size = tokenizer.vocab_size
+    # Chequeo para asegurarse de que los input_ids estén dentro del rango del vocabulario
+    for input_id in tokenized_inputs['input_ids']:
+        if any(id >= vocab_size for id in input_id):
+            raise ValueError("Se encontraron índices en input_ids que están fuera del rango del vocabulario del modelo")
 
     labels = []
     for i, label in enumerate(examples[f"ner_tags"]):
@@ -400,9 +398,8 @@ def tokenize_and_align_labels_vaner(examples):
     tokenized_inputs["labels"] = labels
     return tokenized_inputs
 
-
-
-if align_mode == 'vaner': tokenized_ds = ds.map(tokenize_and_align_labels_vaner, batched=True)
+if align_mode == 'vaner':
+    tokenized_ds = ds.map(tokenize_and_align_labels_vaner, batched=True)
 
 data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
