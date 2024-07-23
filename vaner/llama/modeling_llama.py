@@ -138,7 +138,7 @@ class UnmaskingLlamaModel(LlamaPreTrainedModel):
         # embed positions
         if attention_mask is None:
             attention_mask = torch.ones(
-                (batch_size, seq_length_with_past), dtype=torch.bool, device=inputs_embeds.device
+                (batch_size, seq_length_with_past), dtype=torch.bfloat16, device=inputs_embeds.device
             )
         # causal mask
         '''
@@ -151,7 +151,7 @@ class UnmaskingLlamaModel(LlamaPreTrainedModel):
         # remove causal mask
         attention_mask = torch.zeros(
             (batch_size, 1, seq_length, seq_length), device=inputs_embeds.device
-        )
+        ).to(torch.bfloat16)
 
         hidden_states = inputs_embeds
 
@@ -174,7 +174,6 @@ class UnmaskingLlamaModel(LlamaPreTrainedModel):
             past_key_value = past_key_values[idx] if past_key_values is not None else None
 
             if self.gradient_checkpointing and self.training:
-
                 def create_custom_forward(module):
                     def custom_forward(*inputs):
                         # None for past_key_value
@@ -279,6 +278,7 @@ class UnmaskingLlamaForSequenceClassification(LlamaPreTrainedModel):
             `config.num_labels > 1` a classification loss is computed (Cross-Entropy).
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        attention_mask = attention_mask.bool()
 
         transformer_outputs = self.model(
             input_ids,
@@ -410,7 +410,7 @@ class LlamaForTokenClassification(LlamaPreTrainedModel):
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
-        attention_mask = attention_mask.to(dtype=torch.bfloat16)
+        attention_mask = attention_mask.bool()
 
         outputs = self.model(
             input_ids,
@@ -499,8 +499,11 @@ class UnmaskingLlamaForTokenClassification(LlamaPreTrainedModel):
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(dtype=input_ids.dtype)
+
         outputs = self.model(
-            input_ids,
+            input_ids=input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
             past_key_values=past_key_values,
@@ -530,5 +533,3 @@ class UnmaskingLlamaForTokenClassification(LlamaPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
-
-
