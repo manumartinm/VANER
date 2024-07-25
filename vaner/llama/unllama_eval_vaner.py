@@ -269,7 +269,7 @@ batch_size = 4
 learning_rate = 1e-4
 max_length = 128
 lora_r = 12
-model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
+model_id = 'meta-llama/Meta-Llama-3.1-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 

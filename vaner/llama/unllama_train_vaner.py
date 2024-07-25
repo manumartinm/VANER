@@ -324,7 +324,7 @@ epochs = 20
 batch_size = 4
 learning_rate = 1e-4
 lora_r = 12
-model_id = 'meta-llama/Meta-Llama-3-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
+model_id = 'meta-llama/Meta-Llama-3.1-8B' if llama_version == 3 else 'meta-llama/Llama-2-7b-hf'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 if tokenizer.pad_token is None:
@@ -360,8 +360,9 @@ elif task == 'unidev_kgmix2':
     label2id = {'O': 0, 'B-biomedical': 1, 'I-biomedical': 2}
 else:
     raise NotImplementedError
+
 id2label = {v: k for k, v in label2id.items()}
-label_list = list(label2id.keys()) # ds["train"].features[f"ner_tags"].feature.names
+label_list = list(label2id.keys())
 model = UnmaskingLlamaForTokenClassification.from_pretrained(
     model_id, num_labels=len(label2id), id2label=id2label, label2id=label2id
 ).bfloat16()
