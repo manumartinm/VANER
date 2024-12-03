@@ -247,7 +247,6 @@ def load_linnaeus(kg_type):
         if kg_type == 'mt':
             with open(f'./data/vaner_datacohort/linnaeus/{split_name}_df_mix2.jsonl', 'r') as reader:
                 for line in reader:
-                    # items = parse_mt_species(json.loads(line), split_name)
                     items = parse_mt(json.loads(line), split_name, 'linnaeus', 'Species')
                     data.extend(items)
         else:
@@ -304,18 +303,6 @@ def load_ncbi(kg_type):
         # print(cnt)
         print(len(data))
     return DatasetDict(ret)
-
-# def load_test():
-#     ret = {}
-#     for split_name in ['train', 'dev', 'test']:
-#         data = []
-#         with open(f'./data/test/test.jsonl', 'r') as reader:
-#             for line in reader:
-#                 data.append(json.loads(line))
-#         ret[split_name] = Dataset.from_list(data)
-#     return DatasetDict(ret)
-
-
 
 task, max_length, kgtype, align_mode, llama_version = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5])
 print(f'handling task {task}')
@@ -460,7 +447,7 @@ def compute_metrics(p):
     f1 = f1_score(references, predictions)
     accuracy = calculate_accuracy([item for sublist in references for item in sublist],
                               [item for sublist in predictions for item in sublist])
-    # ipdb.set_trace()
+
     return {
         "precision": precision,
         "recall": recall,
@@ -469,29 +456,39 @@ def compute_metrics(p):
     }
 
 
-output_dir = 'vaner_{}'.format(task)
-training_args = TrainingArguments(
-    output_dir=output_dir,
-    learning_rate=learning_rate,
-    per_device_train_batch_size=batch_size,
-    per_device_eval_batch_size=batch_size,
-    num_train_epochs=epochs,
-    weight_decay=0.01,
-    evaluation_strategy="epoch",
-    save_strategy="epoch",
-    save_total_limit=20,
-    load_best_model_at_end=True,
-    push_to_hub=False,
-)
+def main():
+    output_dir = 'vaner_{}'.format(task)
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        learning_rate=learning_rate,
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        num_train_epochs=epochs,
+        weight_decay=0.01,
+        evaluation_strategy="epoch",
+        save_strategy="epoch",
+        save_total_limit=20,
+        load_best_model_at_end=True,
+        push_to_hub=False,
+    )
 
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=tokenized_ds["train"],
-    eval_dataset=tokenized_ds["test"],
-    tokenizer=tokenizer,
-    data_collator=data_collator,
-    compute_metrics=compute_metrics,
-)
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_ds["train"],
+        eval_dataset=tokenized_ds["test"],
+        tokenizer=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
 
-trainer.train()
+    trainer.train()
+
+    trainer.save_model(output_dir)
+
+    results = trainer.evaluate()
+
+    print(results)
+
+if __name__ == "__main__":
+    main()

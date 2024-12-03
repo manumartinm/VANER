@@ -1,5 +1,7 @@
 from transformers.models.llama.modeling_llama import *
 from transformers.modeling_outputs import TokenClassifierOutput
+import torch
+from torch.nn import CrossEntropyLoss
 
 # Copied from transformers.models.bart.modeling_bart._make_causal_mask
 def _make_causal_mask(

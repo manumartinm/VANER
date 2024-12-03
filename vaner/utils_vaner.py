@@ -335,17 +335,12 @@ def parse_gold(item):
             token_buff = []
     if len(entities) > 0: 
         entities = entities[:2]
-        # entities = [entities[0]]
-        # entities = random.sample(entities, 2)
-    # token1 = 'Given knowledge: {} you are required to extract disease entities from input sentence: '.format(' ; '.join(entities))
+
     token1 = 'If any disease entity {} is mentioned in the sentence, extract it. ##sentence: '.format(' ; '.join(entities))
     
     # ipdb.set_trace()
     item['tokens'][0] = token1
     return item
-
-
-
 
 def tokenize_and_align_labels_try1(examples, tokenizer, max_length):
     tokens_list = [ele['tokens'] for ele in examples]
