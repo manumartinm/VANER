@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import json
 import numpy as np
 from datasets import Dataset, DatasetDict
@@ -256,14 +255,9 @@ def load_craft_species():
 
     return DatasetDict(ret)
 
-if len(sys.argv) != 3:
-    print('usage python %.py task model_size')
-    sys.exit()
-
-task, lora_path, llama_version = sys.argv[1], sys.argv[2].lower(), int(sys.argv[3])
-
-print(f'handling task {task}')
-
+task = 'ncbi'
+lora_path = 'manumartinm/vaner'
+llama_version = 2
 epochs = 1
 batch_size = 4
 learning_rate = 1e-4
